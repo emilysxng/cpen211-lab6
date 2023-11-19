@@ -38,6 +38,7 @@ module regfile(data_in,writenum,write,readnum,clk,data_out);
     input write;
     input clk;
     output reg [15:0] data_out;
+    reg [15:0] outdata;
     wire [7:0]oneHotWriting;
     wire [7:0] oneHotReading;
     wire [15:0] R0;
