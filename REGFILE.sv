@@ -17,6 +17,20 @@ module Decoder (in, out);
     end
 endmodule
 
+module vDFFE(clk, en, in, out) ;
+  parameter n = 1;  // width
+  input clk, en ;
+  input  [n-1:0] in ;
+  output [n-1:0] out ;
+  reg    [n-1:0] out ;
+  wire   [n-1:0] next_out ;
+
+  assign next_out = en ? in : out;
+
+  always @(posedge clk)
+    out = next_out;
+endmodule
+
 module regfile(data_in,writenum,write,readnum,clk,data_out);
     input [15:0] data_in;
     input [2:0] writenum;
@@ -26,15 +40,6 @@ module regfile(data_in,writenum,write,readnum,clk,data_out);
     output reg [15:0] data_out;
     wire [7:0]oneHotWriting;
     wire [7:0] oneHotReading;
-    reg [15:0] R0_;
-    reg [15:0] R1_;
-    reg [15:0] R2_;
-    reg [15:0] R3_;
-    reg [15:0] R4_;
-    reg [15:0] R5_;
-    reg [15:0] R6_;
-    reg [15:0] R7_;
-    reg [15:0] outdata;
     wire [15:0] R0;
     wire [15:0] R1;
     wire [15:0] R2;
@@ -48,50 +53,28 @@ module regfile(data_in,writenum,write,readnum,clk,data_out);
     Decoder writing (writenum,oneHotWriting);
     Decoder reading (readnum,oneHotReading);
 
+    vDFFE #(16) r0 (clk, oneHotWriting[0], data_in, R0);
+    vDFFE #(16) r1 (clk, oneHotWriting[1], data_in, R1);
+    vDFFE #(16) r2 (clk, oneHotWriting[2], data_in, R2);
+    vDFFE #(16) r3 (clk, oneHotWriting[3], data_in, R3);
+    vDFFE #(16) r4 (clk, oneHotWriting[4], data_in, R4);
+    vDFFE #(16) r5 (clk, oneHotWriting[5], data_in, R5);
+    vDFFE #(16) r6 (clk, oneHotWriting[6], data_in, R6);
+    vDFFE #(16) r7 (clk, oneHotWriting[7], data_in, R7);
+
+
     always@(*) begin
         case (oneHotReading)
-            8'b00000001: outdata = R0_;
-            8'b00000010: outdata = R1_;
-            8'b00000100: outdata = R2_;
-            8'b00001000: outdata = R3_;
-            8'b00010000: outdata = R4_;
-            8'b00100000: outdata = R5_;
-            8'b01000000: outdata = R6_;
-            8'b10000000: outdata = R7_;
+            8'b00000001: outdata = R0;
+            8'b00000010: outdata = R1;
+            8'b00000100: outdata = R2;
+            8'b00001000: outdata = R3;
+            8'b00010000: outdata = R4;
+            8'b00100000: outdata = R5;
+            8'b01000000: outdata = R6;
+            8'b10000000: outdata = R7;
             default: outdata = 16'bxxxxxxxxxxxxxxxx;
         endcase
         data_out = outdata;
     end
-
-    always_ff @(posedge clk) begin
-        case ({oneHotWriting,write})
-            9'b000000011: R0_ <= data_in;
-            9'b000000101: R1_ <= data_in;
-            9'b000001001: R2_ <= data_in;
-            9'b000010001: R3_ <= data_in;
-            9'b000100001: R4_ <= data_in;
-            9'b001000001: R5_ <= data_in;
-            9'b010100001: R6_ <= data_in;
-            9'b100000001: R7_ <= data_in;
-            default: begin
-                R0_ <= R0;
-                R1_ <= R1;
-                R2_ <= R2;
-                R3_ <= R3;
-                R4_ <= R4;
-                R5_ <= R5;
-                R6_ <= R6;
-                R7_ <= R7;
-            end
-        endcase
-    end
-
-    assign  R0 = R0_;
-    assign  R1 = R1_;
-    assign  R2 = R2_;
-    assign  R3 = R3_;
-    assign  R4 = R4_;
-    assign  R5 = R5_;
-    assign  R6 = R6_;
-    assign  R7 = R7_;
 endmodule

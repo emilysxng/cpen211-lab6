@@ -1,8 +1,8 @@
-module datapath (datapath_in, datapath_out, writenum, readnum, write, loada, loadb, asel, bsel,vsel, loadc, loads, shift, ALUop, Z_out,clk);
+module datapath (datapath_in, datapath_out, writenum, readnum, write, loada, loadb, asel, bsel,vsel, loadc, loads, shift, ALUop, Z_out, clk);
     input [15:0] datapath_in;
     output [15:0] datapath_out;
     input [2:0] writenum, readnum;
-    input write, loada, loadb, asel, bsel, vsel, loadc, loads,clk;
+    input write, loada, loadb, asel, bsel, vsel, loadc, loads, clk;
     input [1:0] shift, ALUop;
     output Z_out;
     wire [15:0] data_in;
