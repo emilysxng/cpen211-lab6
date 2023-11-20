@@ -1,3 +1,16 @@
+`define WAIT 5'b00000
+`define DECODE 5'b00001
+`define GET_A 5'b00010
+`define GET_B 5'b00011
+`define ADD 5'b00100
+`define WRITE_REG 5'b00101
+`define CMP 5'b00110
+`define AND 5'b00111
+`define MVN 5'b01000
+`define Rd 3'b010
+`define Rm 3'b001
+`define Rn 3'b100
+
 module FSM_controller (clk, reset, s, opcode, op, nsel, asel, bsel, w, loada, loadb, loadc, loads, ALUop, vsel, write);
     input clk, reset, s;
     input [2:0] opcode;

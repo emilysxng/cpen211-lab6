@@ -1,13 +1,13 @@
-module datapath (mdata, PC,datapath_out, sximm8, sximm5 writenum, readnum, write, loada, loadb, asel, bsel, vsel, loadc, loads, shift, ALUop, ZNV_out, clk);
+module datapath (mdata, PC,datapath_out, sximm8, sximm5, writenum, readnum, write, loada, loadb, asel, bsel, vsel, loadc, loads, shift, ALUop, ZNV_out, clk);
     input [15:0] mdata;
     input [7:0] PC;
     output [15:0] datapath_out;
     input [2:0] writenum, readnum;
     input write, loada, loadb, asel, bsel, loadc, loads, clk;
-    input [1:0] vsel
+    input [1:0] vsel;
     input [1:0] shift, ALUop;
-    input [15:0] sximm8, sximm5:
-    output Z_out;
+    input [15:0] sximm8, sximm5;
+    output [2:0] ZNV_out;
     wire [15:0] data_in;
     wire [15:0] data_out;
     wire [15:0] fromA ;
