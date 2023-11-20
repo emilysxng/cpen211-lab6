@@ -63,7 +63,11 @@ module cpu(clk, reset, s, load, in, out, N, V, Z, w);
             assign sximm8 = {8'b00000000, imm8};
         end
 
-
+        if (imm5[4] == 1) begin
+            assign sximm5 = {11'b11111111, imm5};
+        end else begin
+            assign sximm5 = {11'b00000000, imm5};
+        end
     end
 
     //FSM: Sets the inputs to the datapath based on stuff. (takes in opcode and op from decoder)

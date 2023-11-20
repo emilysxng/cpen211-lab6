@@ -16,7 +16,7 @@ module datapath (mdata, PC,datapath_out, sximm8, sximm5 writenum, readnum, write
     wire [15:0] Ain;
     wire [15:0] Bin;
     wire [15:0] toC;
-    wire [2:0] ZNV;
+    wire [2:0]  ZNV;
 
     assign data_in = vsel[1] ? (vsel[0] ? datapath_out : {8'b0, PC}) : (vsel[0] ? sximm8 : mdata);
 
