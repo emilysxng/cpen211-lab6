@@ -1,9 +1,12 @@
-module datapath (datapath_in, datapath_out, writenum, readnum, write, loada, loadb, asel, bsel,vsel, loadc, loads, shift, ALUop, Z_out, clk);
-    input [15:0] datapath_in;
+module datapath (mdata, PC,datapath_out, sximm8, sximm5 writenum, readnum, write, loada, loadb, asel, bsel, vsel, loadc, loads, shift, ALUop, ZNV_out, clk);
+    input [15:0] mdata;
+    input [7:0] PC;
     output [15:0] datapath_out;
     input [2:0] writenum, readnum;
-    input write, loada, loadb, asel, bsel, vsel, loadc, loads, clk;
+    input write, loada, loadb, asel, bsel, loadc, loads, clk;
+    input [1:0] vsel
     input [1:0] shift, ALUop;
+    input [15:0] sximm8, sximm5:
     output Z_out;
     wire [15:0] data_in;
     wire [15:0] data_out;
@@ -13,9 +16,9 @@ module datapath (datapath_in, datapath_out, writenum, readnum, write, loada, loa
     wire [15:0] Ain;
     wire [15:0] Bin;
     wire [15:0] toC;
-    wire Z;
+    wire [2:0] ZNV;
 
-    assign data_in = vsel ? datapath_in : datapath_out;
+    assign data_in = vsel[1] ? (vsel[0] ? datapath_out : {8'b0, PC}) : (vsel[0] ? sximm8 : mdata);
 
     regfile REGFILE (data_in,writenum,write,readnum,clk,data_out);
     //left branch
@@ -24,14 +27,14 @@ module datapath (datapath_in, datapath_out, writenum, readnum, write, loada, loa
     //right branch
     vDFFE #(16) registerB (clk,loadb,data_out,fromB);
     shifter Shift (fromB, shift, fromShift);
-    assign Bin = bsel ? {11'b0,datapath_in[4:0]}:fromShift ;
+    assign Bin = bsel ? sximm5 :fromShift ;
 
     //all into the same ALU
-    ALU Arithmetic(Ain, Bin, ALUop, toC, Z);
+    ALU Arithmetic(Ain, Bin, ALUop, toC, ZNV);
     vDFFE #(16) registerC (clk,loadc,toC,datapath_out);
 
     //status 
-    vDFFE status (clk,loads,Z,Z_out);
+    vDFFE #(3) status (clk,loads,ZNV,ZNV_out);
 
 endmodule: datapath
 
@@ -47,22 +50,4 @@ module vDFFE(clk, en, in, out) ;
 
   always @(posedge clk)
     out = next_out;
-endmodule
-
-
-module RegC (in,load,clk,out);
-    input in;
-    input load, clk;
-    output  out;
-    reg  present_register;
-
-    always_ff @( posedge clk ) begin 
-        case (load)
-            1'b0 : present_register = present_register;
-            1'b1 : present_register <= in;
-        endcase
-    end
-
-    assign out = present_register; 
-
 endmodule

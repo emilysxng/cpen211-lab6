@@ -1,0 +1,7 @@
+Amir
+- Fixing up lab 5
+- Datapath modifications (3)
+
+
+Emily
+- Instruction register and decoder code
