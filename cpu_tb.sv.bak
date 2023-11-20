@@ -1,8 +1,8 @@
 module cpu_tb ();
     reg [15:0] in;
-    reg clk, load;
+    reg clk;
     wire [15:0] out;
-    wire N, V, Z, w, reset, s;
+    wire N, V, Z, w, reset, s, load;
 
     reg [15:0] current_instruction;
     reg [2:0] nsel;
@@ -29,7 +29,7 @@ module cpu_tb ();
     reg [2:0] expected_Rm;
     reg [2:0] expected_Rn;
     reg err;
-    reg [15:0] expected_in;
+    reg [15:0] expected;
 
     cpu dut (clk, reset, s, load, in, out, N, V, Z, w);
 
@@ -50,7 +50,7 @@ module cpu_tb ();
 
         #10;
 
-         if (current_instruction != expected_in)
+         if (current_instruction != expected)
             err = 1'b1;
 
         #5;

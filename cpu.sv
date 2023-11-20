@@ -4,19 +4,13 @@ module cpu(clk, reset, s, load, in, out, N, V, Z, w);
     output [15:0] out;
     output N, V, Z, w;
 
-    reg [15:0] current_intruction;
-    reg [2:0] nsel;
-    reg [2:0] opcode;
-    reg [2:0] ALUop;
-    reg [1:0] op;
+    reg [15:0] current_instruction;
     reg [7:0] imm8;
-    reg [7:0] imm5;
+    reg [5:0] imm5;
     reg [15:0] sximm5;
     reg [15:0] sximm8;
     reg [1:0] shift;
-    reg [2:0] Rd;
-    reg [2:0] Rm;
-    reg [2:0] Rn;
+    reg [2:0] Rd, Rm, Rn, readnum, writenum, nsel, opcode, ALUop, op;
 
     //INSTRUCTION REGISTER: The instruction currently being executed is stored in the 16 bit instruction register
     //Input: clk, load, in
@@ -24,9 +18,9 @@ module cpu(clk, reset, s, load, in, out, N, V, Z, w);
 
     always @(posedge clk) begin
         case (load)
-            1'b0 : current_intruction = current_intruction; //nothing happens
-            1'b1 : current_intruction <= in; //in is copied to IR
-            default: current_intruction = current_intruction;
+            1'b0 : current_instruction = current_instruction; //nothing happens
+            1'b1 : current_instruction <= in; //in is copied to IR
+            default: current_instruction = current_instruction;
         endcase
     end
 
