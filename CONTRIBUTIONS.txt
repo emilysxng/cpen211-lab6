@@ -1,7 +1,10 @@
 Amir
 - Fixing up lab 5
-- Datapath modifications (3)
+- Datapath modifications
+- FSM code and testbench
 
 
 Emily
 - Instruction register and decoder code
+- Instruction register, decoder, and FSM testbench
+- Debugging FSM code

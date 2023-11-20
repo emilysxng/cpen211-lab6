@@ -6,7 +6,7 @@ module datapath_tb ();
     reg [1:0] shift, ALUop;
     reg err;
 
-    datapath dut (datapath_in, datapath_out, writenum, readnum, write, loada, loadb, asel, bsel,vsel, loadc, loads, shift, ALUop, Z_out,clk);
+    datapath dut (datapath_in, datapath_out, writenum, readnum, write, loada, loadb, asel, bsel, vsel, loadc, loads, shift, ALUop, Z_out,clk);
     initial begin
         clk = 1'b0; #5; //rising edge of clock every 5 time units
         forever begin

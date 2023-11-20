@@ -39,7 +39,7 @@ module regfile(data_in,writenum,write,readnum,clk,data_out);
     input clk;
     output reg [15:0] data_out;
     reg [15:0] outdata;
-    wire [7:0]oneHotWriting;
+    wire [7:0] oneHotWriting;
     wire [7:0] oneHotReading;
     wire [15:0] R0;
     wire [15:0] R1;
@@ -54,14 +54,14 @@ module regfile(data_in,writenum,write,readnum,clk,data_out);
     Decoder writing (writenum,oneHotWriting);
     Decoder reading (readnum,oneHotReading);
 
-    vDFFE #(16) r0 (clk, oneHotWriting[0], data_in, R0);
-    vDFFE #(16) r1 (clk, oneHotWriting[1], data_in, R1);
-    vDFFE #(16) r2 (clk, oneHotWriting[2], data_in, R2);
-    vDFFE #(16) r3 (clk, oneHotWriting[3], data_in, R3);
-    vDFFE #(16) r4 (clk, oneHotWriting[4], data_in, R4);
-    vDFFE #(16) r5 (clk, oneHotWriting[5], data_in, R5);
-    vDFFE #(16) r6 (clk, oneHotWriting[6], data_in, R6);
-    vDFFE #(16) r7 (clk, oneHotWriting[7], data_in, R7);
+    vDFFE #(16) r0 (clk, (oneHotWriting[0]&write), data_in, R0);
+    vDFFE #(16) r1 (clk, (oneHotWriting[1]&write), data_in, R1);
+    vDFFE #(16) r2 (clk, (oneHotWriting[2]&write), data_in, R2);
+    vDFFE #(16) r3 (clk, (oneHotWriting[3]&write), data_in, R3);
+    vDFFE #(16) r4 (clk, (oneHotWriting[4]&write), data_in, R4);
+    vDFFE #(16) r5 (clk, (oneHotWriting[5]&write), data_in, R5);
+    vDFFE #(16) r6 (clk, (oneHotWriting[6]&write), data_in, R6);
+    vDFFE #(16) r7 (clk, (oneHotWriting[7]&write), data_in, R7);
 
 
     always@(*) begin
