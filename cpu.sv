@@ -95,10 +95,10 @@ endmodule: cpu
 module FSM_controller (clk, reset, s, opcode, op, nsel, asel, bsel, w, loada, loadb, loadc, loads, ALUop, vsel, write);
     input clk, reset, s;
     input [2:0] opcode;
-    input [1:0] op, ALUop;
+    input [1:0] op;
     output reg [2:0] nsel;
     output reg asel,bsel,loada,loadb,loadc,write,loads;
-    output reg [1:0] vsel;
+    output reg [1:0] vsel, ALUop;
     output reg w;
     reg [4:0] present_state;
 
