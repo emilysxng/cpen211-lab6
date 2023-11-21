@@ -74,6 +74,7 @@ module FSM_controller (clk, reset, s, opcode, op, nsel, asel, bsel, w, loada, lo
             end
 
             `GET_A: begin
+                w = 1'b0;
                 nsel = `Rn;
                 loada = 1'b1;
                 write = 1'b0;
@@ -84,6 +85,7 @@ module FSM_controller (clk, reset, s, opcode, op, nsel, asel, bsel, w, loada, lo
             end
 
             `GET_B: begin
+                w = 1'b0;
                 nsel = `Rm;
                 loada = 1'b0;
                 loadb = 1'b1;
@@ -109,6 +111,7 @@ module FSM_controller (clk, reset, s, opcode, op, nsel, asel, bsel, w, loada, lo
             end
 
             `ADD: begin
+                w = 1'b0;
                 ALUop = 2'b00;
                 loadc = 1'b1;
                 loadb = 1'b0;
@@ -126,6 +129,7 @@ module FSM_controller (clk, reset, s, opcode, op, nsel, asel, bsel, w, loada, lo
             end
 
             `CMP: begin
+                w = 1'b0;
                 ALUop = 2'b01;
                 loads = 1'b1;
                 bsel = 1'b0;
@@ -138,6 +142,7 @@ module FSM_controller (clk, reset, s, opcode, op, nsel, asel, bsel, w, loada, lo
             end
 
             `AND : begin
+                w = 1'b0;
                 ALUop = 2'b10;
                 loadc = 1'b1;
                 loadb = 1'b0;
@@ -150,6 +155,7 @@ module FSM_controller (clk, reset, s, opcode, op, nsel, asel, bsel, w, loada, lo
             end
 
             `MVN : begin
+                w = 1'b0;
                 ALUop = 2'b11;
                 loadc = 1'b1;
                 loada = 1'b0;
@@ -162,6 +168,7 @@ module FSM_controller (clk, reset, s, opcode, op, nsel, asel, bsel, w, loada, lo
             end
 
             `WRITE_REG: begin //Writing to Rn or Rd
+                w = 1'b0;
                 if ((op == 2'b11) & (opcode == 3'b101)) begin //MVN
                     nsel = `Rd;
                     vsel = 2'b11;

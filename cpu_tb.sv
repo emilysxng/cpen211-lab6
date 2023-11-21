@@ -15,37 +15,17 @@ module cpu_tb ();
     reg [15:0] in;
     reg clk, load;
     wire [15:0] out;
-    reg N, V, Z, w, reset, s;
+    reg N, V, Z, reset, s;
 
-    reg [15:0] current_instruction;
-    reg [2:0] nsel;
-    reg [2:0] opcode;
-    reg [1:0] op;
-    reg [7:0] imm8;
-    reg [7:0] imm5;
-    reg [15:0] sximm5;
-    reg [15:0] sximm8;
-    reg [1:0] shift;
-    reg [2:0] Rd;
-    reg [2:0] Rm;
-    reg [2:0] Rn;
-    reg [2:0] expected_opcode;
-    reg [2:0] expected_ALUop;
-    reg [1:0] expected_op;
-    reg [7:0] expected_imm8;
-    reg [7:0] expected_imm5;
-    reg [15:0] expected_sximm5;
-    reg [15:0] expected_sximm8;
-    reg [1:0] expected_shift;
-    reg [2:0] expected_Rd;
-    reg [2:0] expected_Rm;
-    reg [2:0] expected_Rn;
+    reg [2:0] nsel, opcode, Rn, Rd, Rm, expected_opcode, expected_Rd, expected_Rm, expected_Rn;
+    reg [1:0] op, shift, expected_op, expected_shift, expected_ALUop, ALUop, vsel;
+    reg [7:0] expected_imm8, imm8;
+    reg [15:0] expected_sximm8, sximm8, expected_in, current_instruction;
     reg err;
-    reg [15:0] expected_in;
-    reg asel,bsel,loada,loadb,loadc,vsel,write;
+    reg asel,bsel,loada,loadb,loadc,write;
 
     cpu dut (clk, reset, s, load, in, out, N, V, Z, w);
-    FSM_controller dup(clk, reset, s, opcode,  op, nsel, asel, bsel, w, loada,loadb,loadc, loads, ALUop, vsel, write);
+    FSM_controller put(clk, reset, s, opcode,  op, nsel, asel, bsel, w, loada,loadb,loadc, loads, ALUop, vsel, write);
 
     initial begin
         clk = 1'b0; #5; //rising edge of clock every 5 time units
@@ -54,27 +34,6 @@ module cpu_tb ();
             clk = 1'b0; #5;
         end
     end
-
-/*
-    initial begin
-        s = 1'b0;
-        #5;
-        s = 1'b1;
-        #5;
-        opcode = 16'b110_10_000_00000010; //MOV r0, 2
-        op = 2'b01;
-        #100;
-        opcode = 16'b110_10_001_00000111; //MOV r1, 7
-        op = 2'b01;
-        #100;
-        opcode = 16'b110_10_000_000_00_010; //ADD R2, R1, R0
-        op = 2'b01;
-        #100;
-        opcode = 16'b101_01_000_000_00_001; //CMP R1, R0
-        op = 2'b01;
-        #100;
-    end
-*/
 
     initial begin
         //instruction register
@@ -91,7 +50,6 @@ module cpu_tb ();
         #100;
 
         //instruction decoder
-        nsel = 010;
         expected_opcode = 3'b110;
         expected_op = 2'b10;
         expected_Rn = 3'b001;
@@ -126,178 +84,180 @@ module cpu_tb ();
 
         if (sximm8 != expected_sximm8)
             err = 1'b1;
-
         #100;
-
-        //FSM tests  
-        reset = 1'b1;#10;
-        reset = 1'b0;#5;
-        err = 1'b0;
-
-        // ADD test ----------------------------------------------------------------------------------------------------------------------
-
-        s = 1'b0;
-        $display("Check to see if we are in waiting state: %b", dut.present_state);
-        if (w == s) begin
-            err = 1'b1; 
-        end
-
-        #5;
-
-        s = 1'b1;
-        opcode = 3'b101;
-        op = 2'b00;
-        $display("Check to see if we are in GET_A): %b", dut.present_state);
-        if (dut.present_state != `GET_A) begin
-            err = 1'b1; 
-        end
-
-        #5;
-
-        $display("Check to see if we are in GET_B: %b", dut.present_state);
-        if (dut.present_state != `GET_B) begin
-            err = 1'b1; 
-        end
-
-        #5;
-
-        $display("Check to see if we are in ADD: %b", dut.present_state);
-        if (dut.present_state != `ADD) begin
-            err = 1'b1; 
-        end
-
-        #5;
-
-
-        $display("Check to see if we are in WRITE_REG: %b",dut.present_state );
-        if (dut.present_state != `WRITE_REG) begin
-            err = 1'b1; 
-        end
-
-        #5;
-
-        //CHECK CONTENTS OF ADD
-
-        // CMP Test ----------------------------------------------------------------------------------------------------------------------
-
-        s = 1'b0;
-        $display("Check to see if we are in waiting state: %b", dut.present_state);
-        if (w == s) begin
-            err = 1'b1; 
-        end
-
-        #5;
-
-        s = 1'b1;
-        opcode = 3'b101;
-        op = 2'b01;
-        $display("Check to see if we are in GET_A): %b", dut.present_state);
-        if (dut.present_state != `GET_A) begin
-            err = 1'b1; 
-        end
-
-        #5;
-
-        $display("Check to see if we are in GET_B: %b", dut.present_state);
-        if (dut.present_state != `GET_B) begin
-            err = 1'b1; 
-        end
-
-        #5;
-
-        $display("Check to see if we are in CMP: %b", dut.present_state);
-        if (dut.present_state != `CMP) begin
-            err = 1'b1; 
-        end
-
-        //SUPPOSED TO CHECK STATUS HERE
-
-        #5;
- 
-        // AND Test ----------------------------------------------------------------------------------------------------------------------
-
-        s = 1'b0;
-        $display("Check to see if we are in waiting state: %b", dut.present_state);
-        if (w == s) begin
-            err = 1'b1; 
-        end
-
-        #5;
-
-        s = 1'b1;
-        opcode = 3'b101;
-        op = 2'b10;
-        $display("Check to see if we are in GET_A): %b", dut.present_state);
-        if (dut.present_state != `GET_A) begin
-            err = 1'b1; 
-        end
-
-        #5;
-
-        $display("Check to see if we are in GET_B: %b", dut.present_state);
-        if (dut.present_state != `GET_B) begin
-            err = 1'b1; 
-        end
-
-        #5;
-
-        $display("Check to see if we are in AND: %b", dut.present_state);
-        if (dut.present_state != `AND) begin
-            err = 1'b1; 
-        end
-
-        //SUPPOSED TO WRITE THE RESULT OF AND TO RD HERE
-
-        #5;
-
-        // MVN Test ----------------------------------------------------------------------------------------------------------------------
-
-        $display("Check to see if we are in waiting state: %b", dut.present_state);
-        if (dut.present_state != `WRITE_REG) begin
-            err = 1'b1; 
-        end
-
-        #5;
-
-        s = 1'b1;
-        opcode = 3'b101;
-        op = 2'b11;
-        $display("Check to see if we are in GET_A): %b", dut.present_state);
-        if (dut.present_state != `GET_A) begin
-            err = 1'b1; 
-        end
-
-        #5;
-
-        $display("Check to see if we are in GET_B: %b", dut.present_state);
-        if (dut.present_state != `GET_B) begin
-            err = 1'b1; 
-        end
-
-        #5;
-
-        $display("Check to see if we are in MVN: %b", dut.present_state);
-        if (dut.present_state != `MVN) begin
-            err = 1'b1; 
-        end
-
-        #5;
-
-        $display("Check to see if we are in WRITE_REG: %b",dut.present_state );
-        if (dut.present_state != `WRITE_REG) begin
-            err = 1'b1; 
-        end
-
-        #5;
-
-        //CHECK CONTENTS OF RD
-
-        // MOV sximm8 Test ----------------------------------------------------------------------------------------------------------------------
-        
-
-        // MOV reg -> reg Test ----------------------------------------------------------------------------------------------------------------------
-
-        $stop;  
     end
 
+    //FSM tests 
+
+    initial begin
+        //MOV 8 TO R0 ------------------------------------------------------------------------------
+
+        err = 0;
+        reset = 1; s = 0; load = 0; in = 16'b0;
+        #10;
+
+        reset = 0; 
+        #10;
+
+        in = 16'b1101000000001000;
+        load = 1;
+        #10;
+
+        load = 0;
+        s = 1;
+        #10
+
+        s = 0;
+        @(posedge w); // wait for w to go high again
+        #10;
+
+        if (dut.DP.REGFILE.R0 !== 16'h8) begin
+            err = 1;
+        end
+
+        // MOV 5 TO R1  ------------------------------------------------------------------------------
+
+        @(negedge clk); // wait for falling edge of clock before changing inputs
+        in = 16'b1101000100000101;
+        load = 1;
+        #10;
+
+        load = 0;
+        s = 1;
+        #10
+
+        s = 0;
+        @(posedge w); // wait for w to go high again
+        #10;
+
+        if (dut.DP.REGFILE.R1 !== 16'h5) begin
+         err = 1;
+        end
+
+        // R2 has (8*2) + 5 = 21?  ------------------------------------------------------------------------------
+
+        @(negedge clk); // wait for falling edge of clock before changing inputs
+        in = 16'b1010000101001000;
+        load = 1;
+        #10;
+
+        load = 0;
+        s = 1;
+        #10
+
+        s = 0;
+        @(posedge w); // wait for w to go high again
+        #10;
+
+        $display("ADD R2, R1, R0 * 2");
+        $display("R0 (8): %b", dut.DP.REGFILE.R0);
+        $display("R1 (5): %b", dut.DP.REGFILE.R1);
+        $display("R2 (8*2 + 5 = 21): %b", dut.DP.REGFILE.R2);
+
+        if (dut.DP.REGFILE.R2 !== 16'h15) begin //21 is 15 in hex
+            err = 1;
+        end
+
+        // CMP R1, R0 TEST ------------------------------------------------------------------------------
+
+        @(negedge clk); // wait for falling edge of clock before changing inputs
+        in = 16'b101_01_001_000_00_000;
+        load = 1;
+        #10;
+
+        load = 0;
+        s = 1;
+        #10
+
+        s = 0;
+        @(posedge w); // wait for w to go high again
+        #10;
+
+        $display("CMP between R1, R0 status results:");
+        $display("Z of the compare: %b", dut.Z); //exp: 0 //actual: 1
+        $display("N of the compare: %b", dut.N); //exp: 1 //actual: 0
+        $display("V of the compare: %b", dut.V); //exp: 0 //actual: 0
+
+        if (dut.Z !== 1'b0) begin //not equal
+            err = 1;
+        end
+        if (dut.N !== 1'b1) begin // negative (R1 - R0 = 5 - 8 = negative)
+            err = 1;
+        end
+        if (dut.V !== 1'b0) begin //not overflow
+            err = 1;
+        end
+
+        //  AND R3, R1, R0  ------------------------------------------------------------------------------
+
+        @(negedge clk); // wait for falling edge of clock before changing inputs
+        in = 16'b101_10_001_011_00_000;
+        load = 1;
+        #10;
+
+        load = 0;
+        s = 1;
+        #10;
+
+        s = 0;
+        @(posedge w); // wait for w to go high again
+        #10;
+
+        $display("AND R3, R1, R0");
+        $display("R0: %b", dut.DP.REGFILE.R0);
+        $display("R1: %b", dut.DP.REGFILE.R1);
+        $display("R3: %b", dut.DP.REGFILE.R3);
+
+        if (dut.DP.REGFILE.R3 !== 16'b0000000000000000) begin //no matches so should be all 0
+            err = 1;
+        end
+
+        // MVN R4, R0  ------------------------------------------------------------------------------
+
+        @(negedge clk); // wait for falling edge of clock before changing inputs
+        in = 16'b101_11_000_100_00_000;
+        load = 1;
+        #10;
+
+        load = 0;
+        s = 1;
+        #10;
+
+        s = 0;
+        @(posedge w); // wait for w to go high again
+        #10;
+
+        $display("MVN R4, R0");
+        $display("R0: %b", dut.DP.REGFILE.R0);
+        $display("R4: %b", dut.DP.REGFILE.R4);
+
+        if (dut.DP.REGFILE.R4 !== 16'b1111111111110111) begin //Move and negate contents of R0 (8) to R4 (-8)
+            err = 1;
+        end
+
+        // MOV R5, R1 (shifted by 1 bit)  ------------------------------------------------------------------------------
+
+        @(negedge clk); // wait for falling edge of clock before changing inputs
+        in = 16'b110_00_000_101_01_001;
+        load = 1;
+        #10;
+
+        load = 0;
+        s = 1;
+        #10;
+
+        s = 0;
+        @(posedge w); // wait for w to go high again
+        #10;
+
+        $display("MOV R5, R1*2");
+        $display("R1 (5): %b", dut.DP.REGFILE.R1);
+        $display("R5 (10): %b", dut.DP.REGFILE.R5);
+
+        if (dut.DP.REGFILE.R5 !== 16'b0000000000001010) begin //contents of R1 shifted by 1 bit (5*2) is moved to R5 (10)
+            err = 1;
+        end
+
+        $stop;
+    end
 endmodule
