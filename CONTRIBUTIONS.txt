@@ -1,10 +1,12 @@
 Amir
 - Fixing up lab 5
 - Datapath modifications
-- FSM code and testbench
+- Writing FSM code
+- De1 Soc Testing
 
 
 Emily
 - Instruction register and decoder code
-- Instruction register, decoder, and FSM testbench
+- Instruction register, decoder, and FSM testbenches
 - Debugging FSM code
+- Creating tests for De1 Soc
