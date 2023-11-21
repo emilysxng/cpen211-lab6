@@ -95,10 +95,10 @@ endmodule: cpu
 module FSM_controller (clk, reset, s, opcode, op, nsel, asel, bsel, w, loada, loadb, loadc, loads, ALUop, vsel, write);
     input clk, reset, s;
     input [2:0] opcode;
-    input [1:0] op;
+    input [1:0] op, ALUop;
     output reg [2:0] nsel;
     output reg asel,bsel,loada,loadb,loadc,write,loads;
-    output reg [1:0] vsel, ALUop;
+    output reg [1:0] vsel;
     output reg w;
     reg [4:0] present_state;
 
@@ -291,7 +291,7 @@ module datapath (mdata, PC,datapath_out, sximm8, sximm5, writenum, readnum, writ
     wire [15:0] Ain;
     wire [15:0] Bin;
     wire [15:0] toC;
-    wire [2:0]  ZNV;
+    wire [2:0] ZNV;
 
     assign data_in = vsel[1] ? (vsel[0] ? datapath_out : {8'b0, PC}) : (vsel[0] ? sximm8 : mdata);
 

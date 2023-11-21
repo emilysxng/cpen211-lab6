@@ -15,7 +15,7 @@ module cpu_tb ();
     reg [15:0] in;
     reg clk, load;
     wire [15:0] out;
-    wire N, V, Z, w, reset, s;
+    reg N, V, Z, w, reset, s;
 
     reg [15:0] current_instruction;
     reg [2:0] nsel;
@@ -43,10 +43,9 @@ module cpu_tb ();
     reg err;
     reg [15:0] expected_in;
     reg asel,bsel,loada,loadb,loadc,vsel,write;
-    reg w;
 
     cpu dut (clk, reset, s, load, in, out, N, V, Z, w);
-    FSM_controller dut(clk, reset, s, opcode,  op, nsel, asel, bsel, w, loada,loadb,loadc, loads, ALUop, vsel, write);
+    FSM_controller dup(clk, reset, s, opcode,  op, nsel, asel, bsel, w, loada,loadb,loadc, loads, ALUop, vsel, write);
 
     initial begin
         clk = 1'b0; #5; //rising edge of clock every 5 time units
@@ -82,7 +81,7 @@ module cpu_tb ();
         err = 1'b0;
         load = 1'b1;
         in = 16'b1101000100000010;
-        expected = 16'b1101000100000010;
+        expected_in = 16'b1101000100000010;
 
         #10;
 
@@ -294,7 +293,7 @@ module cpu_tb ();
         //CHECK CONTENTS OF RD
 
         // MOV sximm8 Test ----------------------------------------------------------------------------------------------------------------------
-
+        
 
         // MOV reg -> reg Test ----------------------------------------------------------------------------------------------------------------------
 
