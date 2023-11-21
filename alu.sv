@@ -22,6 +22,7 @@ module ALU(Ain, Bin, ALUop, out, ZNV);
     assign UnBin = Bin[15] ? ((~Bin) + 16'b1) : Bin;
 
     always @ (*) begin
+        unsignoutput = 16'b0;
         case (ALUop)
             2'b00: begin
                 out = Ain + Bin;
@@ -54,6 +55,7 @@ module ALU(Ain, Bin, ALUop, out, ZNV);
                 ZNV[2] = 1'b0;
                 ZNV[1] = 1'b0;
                 ZNV[0] = 1'b0;
+                unsignoutput = 16'b0;
             end
         endcase
     end
