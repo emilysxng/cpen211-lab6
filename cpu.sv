@@ -92,8 +92,7 @@ module cpu(clk, reset, s, load, in, out, N, V, Z, w);
     assign V = ZNV_out[0];
 endmodule: cpu
 
-module FSM_controller (clk, reset, s, opcode,  op, nsel, asel, bsel, w, loada,loadb,loadc, loads, ALUop, vsel, write);
-
+module FSM_controller (clk, reset, s, opcode, op, nsel, asel, bsel, w, loada, loadb, loadc, loads, ALUop, vsel, write);
     input clk, reset, s;
     input [2:0] opcode;
     input [1:0] op;
@@ -124,24 +123,26 @@ module FSM_controller (clk, reset, s, opcode,  op, nsel, asel, bsel, w, loada,lo
                 write = 1'b0;
                 loads = 1'b0;
                 nsel = 3'b000;
+                asel = 1'b0;
+                bsel = 1'b0;
             end 
 
             `DECODE: begin
                 w = 1'b0;
-                if ((opcode == 3'b101)) begin
-                    if ((op == 2'b00) | (op == 2'b01) | (op == 2'b10)) begin
+                if (opcode == 3'b101) begin //ALU instructions
+                    if ((op == 2'b00) | (op == 2'b01) | (op == 2'b10)) begin //ADD, CMP, AND
                         present_state = `GET_A;
                     end
-                    else if ((op == 2'b11)) begin
+                    else if (op == 2'b11) begin //MVN
                         present_state = `GET_B;
                     end
                 end
 
-                else if (opcode == 3'b110) begin
-                    if ((op == 2'b00)) begin
+                else if (opcode == 3'b110) begin //MOVE instructions
+                    if (op == 2'b00) begin //MOV reg -> reg
                         present_state = `GET_B;
                     end
-                    else if ((op == 2'b10)) begin
+                    else if (op == 2'b10) begin //MOV sximm8
                         present_state = `WRITE_REG;
                     end
                 end
@@ -154,24 +155,16 @@ module FSM_controller (clk, reset, s, opcode,  op, nsel, asel, bsel, w, loada,lo
             end
 
             `GET_A: begin
-
-                if ((op == 2'b00) | (op == 2'b10)) begin
-                    nsel = `Rn;
-                end
-
-                else if ((op == 2'b01)) begin
-                    nsel = `Rd;
-                end
+                nsel = `Rn;
                 loada = 1'b1;
-                present_state = `GET_B;
                 write = 1'b0;
                 loadb = 1'b0;
                 loadc = 1'b0;
                 loads = 1'b0;
-
+                present_state = `GET_B;
             end
 
-            `GET_B:  begin
+            `GET_B: begin
                 nsel = `Rm;
                 loada = 1'b0;
                 loadb = 1'b1;
@@ -213,17 +206,16 @@ module FSM_controller (clk, reset, s, opcode,  op, nsel, asel, bsel, w, loada,lo
                 present_state = `WRITE_REG;
             end
 
-
             `CMP: begin
                 ALUop = 2'b01;
                 loads = 1'b1;
                 bsel = 1'b0;
                 asel = 1'b0;
-                present_state = `WAIT;
-
                 write = 1'b0;
                 loadb = 1'b0;
                 loadc = 1'b0;
+                loada = 1'b0;
+                present_state = `WAIT; //Do not need to go to write_reg
             end
 
             `AND : begin
@@ -232,11 +224,10 @@ module FSM_controller (clk, reset, s, opcode,  op, nsel, asel, bsel, w, loada,lo
                 loadb = 1'b0;
                 asel = 1'b0;
                 bsel = 1'b0;
-                present_state = `WRITE_REG;
-
                 write = 1'b0;
                 loada = 1'b0;
                 loads = 1'b0;
+                present_state = `WRITE_REG;
             end
 
             `MVN : begin
@@ -245,42 +236,41 @@ module FSM_controller (clk, reset, s, opcode,  op, nsel, asel, bsel, w, loada,lo
                 loada = 1'b0;
                 asel = 1'b0;
                 bsel = 1'b0;
-                present_state = `WRITE_REG;
-
                 write = 1'b0;
                 loadb = 1'b0;
                 loads = 1'b0;
+                present_state = `WRITE_REG;
             end
 
-            `WRITE_REG: begin
-                if ((op == 2'b11) & (opcode == 3'b101)) begin
+            `WRITE_REG: begin //Writing to Rn or Rd
+                if ((op == 2'b11) & (opcode == 3'b101)) begin //MVN
                     nsel = `Rd;
                     vsel = 2'b11;
                 end
-                else if ((op == 2'b00) & (opcode == 3'b110)) begin
+                else if ((op == 2'b00) & (opcode == 3'b110)) begin //MOV reg -> reg
                     nsel = `Rd;
                     vsel = 2'b11;
                 end
-                else if ((op == 2'b10) & (opcode == 3'b110)) begin
+                else if ((op == 2'b10) & (opcode == 3'b110)) begin //MOV sximm8 (writing to Rn!!!)
                     nsel = `Rn;
                     vsel = 2'b01;
                 end
-                else begin
+                else begin //ADD, AND (CMP never reaches this state)
                     nsel = `Rd;
                     vsel = 2'b11;
                 end
                 loadc = 1'b0;
                 write = 1'b1;
-                present_state = `WAIT;
                 loadb = 1'b0;
                 loada = 1'b0;
                 loads = 1'b0;
+                asel = 1'b0;
+                bsel = 1'b0;
+                present_state = `WAIT;
             end
             default: present_state = present_state;
         endcase
-        
     end
-    
 endmodule
 
 module datapath (mdata, PC,datapath_out, sximm8, sximm5, writenum, readnum, write, loada, loadb, asel, bsel, vsel, loadc, loads, shift, ALUop, ZNV_out, clk);
