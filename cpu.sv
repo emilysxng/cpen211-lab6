@@ -48,14 +48,14 @@ module cpu(clk, reset, s, load, in, out, N, V, Z, w);
 
     always @(*) begin
         //extract data from current_instruction
-        assign opcode = current_instruction[15:13];
-        assign op = current_instruction[12:11];
-        assign Rn = current_instruction[10:8];
-        assign Rd = current_instruction[7:5];
-        assign Rm = current_instruction[2:0];
-        assign shift = current_instruction[4:3];
-        assign imm8 = current_instruction[7:0];
-        assign imm5 = current_instruction[4:0];
+        opcode = current_instruction[15:13];
+        op = current_instruction[12:11];
+        Rn = current_instruction[10:8];
+        Rd = current_instruction[7:5];
+        Rm = current_instruction[2:0];
+        shift = current_instruction[4:3];
+        imm8 = current_instruction[7:0];
+        imm5 = current_instruction[4:0];
 
         //with nsel, make a mux for Rn, Rd, Rm to readnum and writenum
         case(nsel)
@@ -65,19 +65,19 @@ module cpu(clk, reset, s, load, in, out, N, V, Z, w);
             default: readnum = Rn;
         endcase
 
-        assign writenum = readnum;
+        writenum = readnum;
 
         //sign extend imm5 and imm8
         if (imm8[7] == 1) begin
-            assign sximm8 = {8'b11111111, imm8};
+            sximm8 = {8'b11111111, imm8};
         end else begin
-            assign sximm8 = {8'b00000000, imm8};
+            sximm8 = {8'b00000000, imm8};
         end
 
         if (imm5[4] == 1) begin
-            assign sximm5 = {11'b11111111, imm5};
+            sximm5 = {8'b11111111, imm5};
         end else begin
-            assign sximm5 = {11'b00000000, imm5};
+            sximm5 = {8'b00000000, imm5};
         end
     end
 
